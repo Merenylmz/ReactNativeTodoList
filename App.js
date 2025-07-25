@@ -1,33 +1,38 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput, ScrollView, FlatList } from 'react-native';
+import GoalItem from './Components/GoalItem';
+import GoalInput from './Components/GoalInput';
 
 export default function App() {
-  const [goalTextInput, setGoalTextInput] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
   const [goals, setGoals] = useState([]);
 
-  const handleButton = () =>{
-    setGoals((previousGoals)=>[...previousGoals, {id: Math.random().toString(), title: goalTextInput}]);
-    setGoalTextInput("");
+  const handleAddButton = (enteredText) =>{
+    setGoals((previousGoals)=>[...previousGoals, {id: Math.random().toString(), title: enteredText}]);
+  }
+
+  const startAddGoalHandler = ()=>{
+    setModalVisible(true);
+  }
+
+  const deleteGoalHandler = (id) => {
+    setGoals((currentCourseGoals)=>{
+      return currentCourseGoals.filter((goal)=>goal.id != id);
+    });
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
-        <TextInput placeholder='Enter a Your Goal' style={styles.textInput} onChangeText={(e)=>setGoalTextInput(e)} value={goalTextInput}/>
-        <Button title='Add' onPress={()=>handleButton()} />
-      </View>
+    <View style={styles.container} >
+      <Button title='Add New Goal' color={"#5e0acc"} onPress={startAddGoalHandler}/>
+      <GoalInput addGoal={handleAddButton} isVisible={modalVisible} setModalVisible={setModalVisible}/>
       <View style={styles.goalsContainer}>
         <FlatList data={goals} renderItem={(goal)=>{
-          return (
-            <View style={styles.goalItem}>
-              <Text style={styles.goalText}>{goal.item.title}</Text>
-            </View>
-          )
+          return <GoalItem item={goal.item} deleteGoalHandler={deleteGoalHandler}/>
         }} keyExtractor={(item)=>{return item.id}}/>
       </View>
 
-      <StatusBar style="dark" />
+      <StatusBar style="auto" />
     </View>
   );
 }
@@ -35,35 +40,12 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     padding: 50,
-    flex: 1
-  },
-  inputContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 24,
-    flex: 1
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: "black",
-    borderRadius: 4,
-    width: "80%",
-    padding: 8,
+    flex: 1,
+    backgroundColor: "#311b6b"
   },
   goalsContainer: {
     flex: 10,
     borderTopWidth: 1,
     paddingTop:15
-  },
-  goalItem: {
-    margin: 8,
-    padding: 8,
-    borderRadius: 6,
-    backgroundColor: "#5e0acc",
-  },  
-  goalText:{
-    color: "#fff"
   }
-
 });
